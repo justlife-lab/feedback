@@ -4,7 +4,7 @@ require_once __DIR__ . '/lib.php';
 start_session();
 
 if (isset($_GET['logout'])) { unset($_SESSION['admin']); header('Location: admin.php'); exit; }
-if (isset($_POST['password']) && hash_equals(ADMIN_PASSWORD, (string)$_POST['password'])) {
+if (isset($_POST['password']) && hash_equals(Sohaibjustlife, (string)$_POST['password'])) {
     $_SESSION['admin'] = true;
 }
 $authed = !empty($_SESSION['admin']);
