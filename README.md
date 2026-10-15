@@ -13,7 +13,7 @@ sent only to people who scanned the QR code.
 
 | File | What it is |
 |---|---|
-| `index.html` | Page 1: "Write a Google review" button, then "Get my gift" |
+| `index.html` | Page 1: "Write a Google review" → how-to popup → Google (same tab) → "Thank you" popup with the gift button |
 | `voucher.html` | Page 2: the voucher code (fetched from Google, only for people who scanned the QR) |
 | `qr.html` | Branded QR poster: download the PNG or print |
 | `assets/logo.png` | Justlife logo |
@@ -39,9 +39,8 @@ sent only to people who scanned the QR code.
 ## Step 2: GitHub side
 
 1. In **both** `index.html` and `voucher.html`, find `API_URL: 'PASTE_YOUR_APPS_SCRIPT_URL_HERE'`
-   and paste your URL between the quotes. In `index.html` you can also replace `GOOGLE_REVIEW_URL`
-   with your direct review link (Google Business Profile → **Ask for reviews**). It opens the
-   review box straight away.
+   and paste your URL between the quotes. (`GOOGLE_REVIEW_URL` is already set to Justlife
+   Healthcare's direct "write a review" link.)
 2. Upload all files to your repo (**Add file → Upload files**), then **Commit changes**.
 3. Repo **Settings → Pages** → Source: **Deploy from a branch** → Branch: **main** / **(root)** → **Save**.
 4. After about a minute your site is live at `https://YOUR-USERNAME.github.io/YOUR-REPO/`
