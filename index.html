@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#02C2FF">
+<title>Justlife · Share your feedback</title>
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  /* ====== SETTINGS ====== */
+  const CONFIG = {
+    // Paste your Google Apps Script "Web app" URL here (ends with /exec)
+    API_URL: 'PASTE_YOUR_APPS_SCRIPT_URL_HERE',
+    // Best: your direct review link from Google Business Profile → "Ask for reviews" (g.page/r/.../review)
+    GOOGLE_REVIEW_URL: 'https://maps.app.goo.gl/UsNXknz2D4aC5CUaA',
+    VOUCHER_VALUE: '150 AED',
+    VOUCHER_TITLE: 'off your IV Therapy at home',
+  };
+  // The voucher CODE is not here on purpose: it comes from Google only after the form is submitted.
+</script>
+<style>
+  /* ===== Justlife brand colours ===== */
+  :root{
+    --brand:#02C2FF; --brand-deep:#0077B6; --brand-soft:#E5F8FF; --on-brand:#06283D;
+    --ink:#06283D; --ink-2:#4A5D70; --line:#DDE7EE; --bg:#F3F8FB; --card:#FFFFFF;
+    --star:#FFB800; --danger:#D93A4A; --radius:20px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink-2);
+       min-height:100vh;-webkit-font-smoothing:antialiased}
+  .hero{background:linear-gradient(155deg,var(--brand) 0%,#0399E0 50%,var(--brand-deep) 100%);
+        padding:28px 20px 96px;color:#fff;text-align:center;position:relative;overflow:hidden}
+  .hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.10)}
+  .hero::before{width:260px;height:260px;top:-110px;left:-90px}
+  .hero::after{width:200px;height:200px;bottom:-80px;right:-60px}
+  .logo{width:60px;height:60px;border-radius:16px;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 8px 20px rgba(6,40,61,.25);position:relative;z-index:1}
+  .hero h1{font-size:27px;line-height:1.25;font-weight:800;margin-top:20px;position:relative;z-index:1;text-shadow:0 1px 2px rgba(6,40,61,.25)}
+  .hero p{margin-top:8px;font-size:15px;font-weight:500;position:relative;z-index:1;text-shadow:0 1px 2px rgba(6,40,61,.25)}
+  .pill{display:inline-flex;gap:6px;align-items:center;background:#fff;color:var(--ink);border-radius:99px;padding:7px 15px;
+        font-size:13px;font-weight:700;margin-top:16px;position:relative;z-index:1;box-shadow:0 6px 16px rgba(6,40,61,.15)}
+  main{max-width:460px;margin:-72px auto 40px;padding:0 16px;position:relative;z-index:2}
+  .card{background:var(--card);border-radius:var(--radius);padding:26px 20px;box-shadow:0 12px 40px rgba(6,40,61,.10)}
+  label{display:block;font-weight:700;color:var(--ink);font-size:15px;margin:22px 0 10px}
+  textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;
+        background:#fff;min-height:130px;resize:vertical;transition:border-color .15s,box-shadow .15s}
+  textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+  .stars{display:flex;flex-direction:row-reverse;justify-content:center;gap:6px}
+  .stars input{position:absolute;opacity:0;pointer-events:none}
+  .stars label{margin:0;cursor:pointer;font-size:42px;line-height:1;color:var(--line);transition:transform .12s,color .12s}
+  .stars label:hover,.stars label:hover ~ label,.stars input:checked ~ label{color:var(--star)}
+  .stars label:active{transform:scale(.88)}
+  .rating-hint{text-align:center;font-size:14px;margin-top:8px;min-height:20px;font-weight:700;color:var(--ink)}
+  .btn{display:flex;align-items:center;justify-content:center;width:100%;border:0;cursor:pointer;font:inherit;font-weight:800;
+       font-size:16px;border-radius:14px;padding:16px;margin-top:22px;transition:transform .1s,filter .15s}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--brand);color:var(--on-brand);box-shadow:0 8px 20px rgba(2,194,255,.35)}
+  .btn-primary:hover{filter:brightness(1.05)}
+  .btn-primary[disabled]{opacity:.6;cursor:wait}
+  .error{background:#FDECEE;color:var(--danger);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;margin-top:16px;display:none}
+  .hp{position:absolute;left:-9999px}
+  .fine{font-size:12px;text-align:center;margin-top:14px}
+  .ticket{border-radius:var(--radius);overflow:hidden;box-shadow:0 12px 40px rgba(6,40,61,.14)}
+  .ticket-top{background:linear-gradient(155deg,var(--brand) 0%,#0399E0 55%,var(--brand-deep) 100%);color:#fff;padding:28px 22px 24px;
+        text-align:center;text-shadow:0 1px 2px rgba(6,40,61,.25)}
+  .ticket-top .tag{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+  .ticket-top .value{font-size:48px;font-weight:800;letter-spacing:-1px;margin-top:6px}
+  .ticket-top .what{font-size:15px;font-weight:600}
+  .perf{height:24px;background:#fff;position:relative;background-image:linear-gradient(90deg,var(--line) 50%,transparent 50%);
+        background-size:14px 2px;background-repeat:repeat-x;background-position:center}
+  .perf::before,.perf::after{content:"";position:absolute;top:0;width:24px;height:24px;border-radius:50%;background:var(--bg)}
+  .perf::before{left:-12px}.perf::after{right:-12px}
+  .ticket-body{background:#fff;padding:6px 22px 26px;text-align:center}
+  .code{display:flex;align-items:center;justify-content:space-between;gap:10px;border:2px dashed var(--brand);background:var(--brand-soft);
+        border-radius:14px;padding:12px 12px 12px 18px;margin-top:10px}
+  .code strong{font-size:26px;letter-spacing:3px;color:var(--ink);font-weight:800}
+  .copy{border:0;background:var(--brand);color:var(--on-brand);font:inherit;font-weight:800;font-size:14px;border-radius:10px;padding:10px 16px;cursor:pointer}
+  .thanks{font-size:13px;margin-top:16px}
+  .hidden{display:none}
+  .pop{animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+  footer{text-align:center;font-size:12px;padding:0 16px 28px}
+  .g-card{text-align:center}
+  .g-card h2{color:var(--ink);font-size:20px;line-height:1.3}
+  .g-card p{font-size:14px;line-height:1.55;margin-top:8px}
+  .gstars{color:var(--star);font-size:30px;letter-spacing:4px;margin-bottom:10px}
+  .btn-google{background:#fff;color:var(--ink);border:1.5px solid var(--line);gap:10px;box-shadow:0 6px 16px rgba(6,40,61,.08);text-decoration:none}
+  .btn-next{text-decoration:none}
+  .btn-next.dim{background:var(--brand-soft);box-shadow:none}
+  .done{display:none;background:#E9FBF1;color:#127A45;border-radius:12px;padding:10px 12px;font-size:14px;font-weight:700;margin-top:16px}
+  .steps-row{display:flex;justify-content:center;gap:8px;margin-top:16px;position:relative;z-index:1}
+  .steps-row span{width:28px;height:6px;border-radius:9px;background:rgba(255,255,255,.4)}
+  .steps-row span.on{background:#fff}
+</style>
+</head>
+<body>
+<header class="hero">
+  <img class="logo" src="assets/logo.png" alt="Justlife">
+  <h1>Thank you for choosing Justlife!</h1>
+  <p>Share your experience on Google, then grab your gift</p>
+  <div class="steps-row"><span class="on"></span><span></span></div>
+</header>
+
+<main>
+  <div class="card g-card">
+    <div class="gstars">★★★★★</div>
+    <h2>Tell others about your experience on Google</h2>
+    <p>Your honest review helps families across the UAE find trusted home services.</p>
+    <a class="btn btn-google" id="googleBtn" href="#" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Write a Google review</a>
+    <div class="done" id="done">✓ Thank you! Come back here when you’re finished.</div>
+    <a class="btn btn-primary btn-next dim" id="nextBtn" href="voucher.html">Get my&nbsp;<span class="vv"></span>&nbsp;gift →</a>
+    <div class="error" id="error" role="alert"></div>
+  </div>
+</main>
+
+<footer>© <span id="yr"></span> Justlife · Voucher subject to availability and booking terms</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const store = {  // browser storage can be blocked (private mode), so never let it crash the page
+  get(s, k) { try { return window[s].getItem(k); } catch (_) { return null; } },
+  set(s, k, v) { try { window[s].setItem(k, v); } catch (_) {} },
+};
+document.querySelectorAll('.vv').forEach(el => el.textContent = CONFIG.VOUCHER_VALUE);
+$('yr').textContent = new Date().getFullYear();
+$('googleBtn').href = CONFIG.GOOGLE_REVIEW_URL;
+
+// Count the scan once per visit and get a one-time token from Google
+const src = new URLSearchParams(location.search).get('src') || 'direct';
+if (!CONFIG.API_URL.startsWith('http')) {
+  $('error').textContent = 'Setup needed: paste the Apps Script URL into CONFIG.API_URL.'; $('error').style.display = 'block';
+} else if (!store.get('sessionStorage', 'jl_token')) {
+  fetch(CONFIG.API_URL + '?action=scan&src=' + encodeURIComponent(src))
+    .then(r => r.json()).then(d => d.ok && store.set('sessionStorage', 'jl_token', d.token)).catch(() => {});
+}
+
+function markClicked() {
+  $('done').style.display = 'block';
+  $('nextBtn').classList.remove('dim');
+  $('googleBtn').style.display = 'none';
+}
+if (store.get('sessionStorage', 'jl_clicked')) markClicked();
+
+$('googleBtn').addEventListener('click', () => {
+  store.set('sessionStorage', 'jl_clicked', '1');
+  const t = store.get('sessionStorage', 'jl_token');
+  if (t) fetch(CONFIG.API_URL + '?action=review_click&token=' + encodeURIComponent(t), { keepalive: true }).catch(() => {});
+  setTimeout(markClicked, 400);
+});
+</script>
+</body>
+</html>

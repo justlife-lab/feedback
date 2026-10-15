@@ -1,54 +1,73 @@
-# Justlife — QR Feedback & Voucher
+# Justlife — QR Feedback & Voucher (100% free)
 
-A client scans a QR code, gives a star rating and writes a short comment, and only then
-receives the **IVME150** voucher (150 AED off IV Therapy). Scans, feedback and vouchers
-issued are counted automatically in `.txt` files.
+The client scans the QR code → **page 1** asks them to write a Google review → **page 2** (`voucher.html`) shows the voucher code.
+No server or hosting to pay for:
 
-Brand colour: **#02C2FF** (Justlife cyan, from the app icon). Buttons use dark navy text
-(#06283D) on cyan because white on #02C2FF is too faint to read (2.1:1 contrast).
+- **GitHub Pages** shows the page (free).
+- **Google Apps Script** saves the data and releases the voucher (free). It runs on your Google account.
+
+The voucher code is **never** in this repo. It's stored privately in your Google account and
+sent only to people who scanned the QR code.
 
 ## Files
 
-| File | What it does |
+| File | What it is |
 |---|---|
-| `index.php` | The page clients see after scanning (rating + comment → voucher) |
-| `submit.php` | Checks the form and releases the voucher code; nothing is released without a valid form |
-| `admin.php` | Password-protected stats dashboard + downloads of the .txt files |
-| `qr.html` | Branded QR poster: type your URL, download the PNG or print |
-| `config.php` | **Edit this**: voucher code and admin password |
-| `lib.php` | Shared helpers (txt counters with file locking) |
-| `assets/logo.png` | Justlife app icon |
-| `data/` | Created automatically: `stats.txt`, `feedback.txt`, `events.txt` (blocked from public access) |
+| `index.html` | Page 1: "Write a Google review" button, then "Get my gift" |
+| `voucher.html` | Page 2: the voucher code (fetched from Google, only for people who scanned the QR) |
+| `qr.html` | Branded QR poster: download the PNG or print |
+| `assets/logo.png` | Justlife logo |
+| `apps-script/Code.gs` | Code you paste into Google Apps Script (step 1) |
 
-## Setup
+## Step 1: Google side (10 minutes)
 
-1. **Edit `config.php`**: set a strong `ADMIN_PASSWORD`.
-2. **Push to GitHub** (keep the repo **private**, because `config.php` contains the voucher code):
-   ```bash
-   git init
-   git add .
-   git commit -m "Justlife QR feedback & voucher page"
-   git branch -M main
-   git remote add origin https://github.com/YOUR-USER/justlife-review-voucher.git
-   git push -u origin main
-   ```
-3. **Host it on a PHP server.** GitHub Pages can't run PHP. Use cPanel/Hostinger, or any
-   Apache + PHP 8 host, and deploy from the repo or upload the files. Make sure the
-   `data/` folder is writable (permission `755`, or `775` if needed).
-4. **Make the QR code**: open `https://your-site.com/qr.html`, then **Download PNG** or **Print**.
-5. **See results**: `https://your-site.com/admin.php`
+1. Go to **sheets.new** to create a new Google Sheet. Name it `Justlife QR Feedback`.
+2. Menu **Extensions → Apps Script**. Delete everything in the editor, paste all of
+   `apps-script/Code.gs`, and click **Save** 💾.
+3. Click the **gear icon (Project Settings)** → scroll to **Script properties** → **Add script property**
+   - Property: `VOUCHER_CODE`
+   - Value: your voucher code
+   - **Save**
+4. Back in the editor, choose the function **`setup`** at the top and click **▶ Run**.
+   Google asks for permission → **Review permissions** → pick your account →
+   **Advanced → Go to project (unsafe)** → **Allow**. This is normal for your own scripts.
+5. Click **Deploy → New deployment** → gear icon → **Web app**
+   - Execute as: **Me**
+   - Who has access: **Anyone**
+   - **Deploy** → copy the **Web app URL** (ends with `/exec`).
 
-## What gets saved
+## Step 2: GitHub side
 
-- `data/stats.txt`: QR scans, feedback submitted, vouchers issued, scan → feedback rate
-- `data/feedback.txt`: `date | rating=5 | comment`
-- `data/events.txt`: every scan and submission, one per line
+1. In **both** `index.html` and `voucher.html`, find `API_URL: 'PASTE_YOUR_APPS_SCRIPT_URL_HERE'`
+   and paste your URL between the quotes. In `index.html` you can also replace `GOOGLE_REVIEW_URL`
+   with your direct review link (Google Business Profile → **Ask for reviews**). It opens the
+   review box straight away.
+2. Upload all files to your repo (**Add file → Upload files**), then **Commit changes**.
+3. Repo **Settings → Pages** → Source: **Deploy from a branch** → Branch: **main** / **(root)** → **Save**.
+4. After about a minute your site is live at `https://YOUR-USERNAME.github.io/YOUR-REPO/`
 
-## How "no feedback, no voucher" is enforced
+## Step 3: QR code
 
-- The voucher code is never in the page HTML. `submit.php` sends it back only after
-  the form passes validation (star rating chosen, comment 10+ characters).
-- Requests must carry a one-time token from a real page visit, so nobody can request
-  the voucher by calling the API directly. A hidden honeypot field blocks bots.
-- Each device can claim one voucher (session + 1-year cookie). A second submission shows the same
-  code again but is not counted twice.
+Open `https://YOUR-USERNAME.github.io/YOUR-REPO/qr.html` → **Download PNG** or **Print**.
+
+## Where the data goes
+
+- **Google Sheet**:
+  - `Stats` tab: QR scans, Google review button clicks, vouchers shown
+  - `Events` tab: every scan, click and voucher, with time
+- **Google Drive** folder `Justlife QR Feedback`:
+  - `stats.txt`: live counters
+  - `vouchers.txt`: each voucher shown, and whether that client clicked the Google button first
+
+## Good to know
+
+A website can't see whether someone actually posted a Google review. Google doesn't
+share that. The page counts clicks on the Google button, and the "Get my gift" button
+works either way. Google's rules forbid giving rewards *for* reviews, so the voucher is
+presented as a thank-you gift for every client.
+
+## Changing something later
+
+- **New voucher code:** change `VOUCHER_CODE` in Script properties. No redeploy needed.
+- **Changed `Code.gs`:** **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy**.
+  The URL stays the same.
